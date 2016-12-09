@@ -19,11 +19,18 @@ public class EggStack extends JavaPlugin implements Listener {
 	public static final String BIG_EGG_NAME = "Eggus";
 	ItemStack nineEggs;
 	ItemStack spawnEgg;
+	PluginLogger logger;
+	
+	void info(String msg) {
+		logger.log(Level.INFO, msg);
+	}
 	
 	@Override
 	public void onEnable() {
-		PluginLogger logger = new PluginLogger(this);
+		logger = new PluginLogger(this);
 		logger.log(Level.INFO, "EggStack starting...");
+		
+		getServer().getPluginManager().registerEvents(this, this);
 		
 		spawnEgg = new ItemStack(Material.MONSTER_EGG);
 		ItemMeta spawnEggMeta = spawnEgg.getItemMeta();
@@ -44,8 +51,10 @@ public class EggStack extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onNineEggsCrafted(PrepareItemCraftEvent event) {
+		info("Crafting started...");
 		CraftingInventory ci = event.getInventory();
 		if (ci.getResult().hasItemMeta() && this.nineEggs == ci.getResult()) {
+			info("Crafting some eggs...")
 		    // this is our custom item - make sure ingredient is found
 			  boolean found = false;
 			  for (ItemStack item : ci.getMatrix()) {
@@ -56,7 +65,11 @@ public class EggStack extends JavaPlugin implements Listener {
 				  }
 			  }
 			  if (!found) {
+				  info("Wrong ingredient!");
 				  ci.setResult(null);
+			  }
+			  else {
+				  info("Correct ingredient!");
 			  }
 		}
 	}
