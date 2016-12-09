@@ -15,13 +15,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class EggStack extends JavaPlugin implements Listener {
 	
+	static boolean DEBUG = false;
+	
 	public static final String BIG_EGG_NAME = "Eggus";
+	ItemStack egg;
 	ItemStack nineEggs;
 	ItemStack spawnEgg;
 	PluginLogger logger;
 	
-	void info(String msg) {
-		logger.log(Level.INFO, msg);
+	void debug(String msg) {
+		if (DEBUG) logger.log(Level.INFO, msg);
 	}
 	
 	@Override
@@ -44,6 +47,8 @@ public class EggStack extends JavaPlugin implements Listener {
 		ShapelessRecipe eggRecipe = new ShapelessRecipe(nineEggs);
 		eggRecipe.addIngredient(Material.MONSTER_EGG);
 		getServer().addRecipe(eggRecipe);
+		
+		egg = new ItemStack(Material.EGG);
 	}
 
 	@Override
@@ -51,10 +56,10 @@ public class EggStack extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onNineEggsCrafted(PrepareItemCraftEvent event) {
-		info("Crafting started...");
+		debug("Crafting started...");
 		CraftingInventory ci = event.getInventory();
-		if (ci.getResult().hasItemMeta() && this.nineEggs == ci.getResult()) {
-			info("Crafting some eggs...");
+		if (ci.getResult().getType() == Material.EGG && ci.getResult().getAmount() == 9) {
+			debug("Crafting some eggs...");
 		    // this is our custom item - make sure ingredient is found
 			  boolean found = false;
 			  for (ItemStack item : ci.getMatrix()) {
@@ -65,11 +70,11 @@ public class EggStack extends JavaPlugin implements Listener {
 				  }
 			  }
 			  if (!found) {
-				  info("Wrong ingredient!");
+				  debug("Wrong ingredient!");
 				  ci.setResult(null);
 			  }
 			  else {
-				  info("Correct ingredient!");
+				  debug("Correct ingredient!");
 			  }
 		}
 	}
