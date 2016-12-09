@@ -1,0 +1,5 @@
+main: ca.pfaj.eggstack.EggStack
+name: EggStack
+version: 0.1
+author: Peter Fajner
+description: Allows stacking of eggs up to 64.
