@@ -1,5 +1,7 @@
 package ca.pfaj.eggstack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
@@ -18,6 +20,7 @@ public class EggStack extends JavaPlugin implements Listener {
 	static boolean DEBUG = false;
 	
 	public static final String BIG_EGG_NAME = "Eggus";
+	public static final String BIG_EGG_LORE_STRING = "Egg × 9";
 	ItemStack egg;
 	ItemStack nineEggs;
 	ItemStack spawnEgg;
@@ -30,19 +33,25 @@ public class EggStack extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		logger = new PluginLogger(this);
-		logger.log(Level.INFO, "EggStack starting...");
 		
+		// register a method to check if the correct spawn egg is being crafted
 		getServer().getPluginManager().registerEvents(this, this);
 		
+		// create the big egg
 		spawnEgg = new ItemStack(Material.MONSTER_EGG);
 		ItemMeta spawnEggMeta = spawnEgg.getItemMeta();
-		spawnEggMeta.setDisplayName(EggStack.BIG_EGG_NAME);
+		spawnEggMeta.setDisplayName(EggStack.BIG_EGG_NAME); // set name of the big egg to "Eggus"
+		ArrayList<String> lore = new ArrayList<String>();
+		lore.add(EggStack.BIG_EGG_LORE_STRING);
+		spawnEggMeta.setLore(lore); // set the lore to "Egg × 9"
 		spawnEgg.setItemMeta(spawnEggMeta);
 		
+		// create the recipe for 9 eggs -> big egg
 		ShapelessRecipe spawnEggRecipe = new ShapelessRecipe(spawnEgg);
 		spawnEggRecipe.addIngredient(9, Material.EGG);
 		getServer().addRecipe(spawnEggRecipe);
 		
+		// create the recipe for big egg -> 9 eggs
 		nineEggs = new ItemStack(Material.EGG, 9);
 		ShapelessRecipe eggRecipe = new ShapelessRecipe(nineEggs);
 		eggRecipe.addIngredient(Material.MONSTER_EGG);
@@ -56,16 +65,27 @@ public class EggStack extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onNineEggsCrafted(PrepareItemCraftEvent event) {
+		/**
+		 * Ensure that the spawn egg in the recipe is an Eggus.
+		 */
 		debug("Crafting started...");
 		CraftingInventory ci = event.getInventory();
-		if (ci.getResult().getType() == Material.EGG && ci.getResult().getAmount() == 9) {
+		if (ci.getResult().getType() == Material.EGG && ci.getResult().getAmount() == 9) { // check that the item being crafted is 9 eggs
 			debug("Crafting some eggs...");
-		    // this is our custom item - make sure ingredient is found
+		    // make sure the Eggus is an ingredient
 			  boolean found = false;
 			  for (ItemStack item : ci.getMatrix()) {
 				  if (item != null && item.hasItemMeta()) {
+					  // check if the name is correct - legacy, may be removed in the future
 					  if (EggStack.BIG_EGG_NAME.equals(item.getItemMeta().getDisplayName())) {
 						  found = true;
+					  }
+					  // check if the lore is correct
+					  List<String> lore = item.getItemMeta().getLore();
+					  if (lore != null && lore.size() > 0) {
+						  if (EggStack.BIG_EGG_LORE_STRING.equals(lore.get(0))) {
+							  found = true;
+						  }
 					  }
 				  }
 			  }
